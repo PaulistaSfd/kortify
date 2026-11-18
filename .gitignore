@@ -1,0 +1,9 @@
+node_modules
+.next
+out
+.env*
+.open-next
+.wrangler
+.dev.vars
+shots
+!.env.example
