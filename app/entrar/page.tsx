@@ -30,7 +30,16 @@ export default function Entrar() {
     setIndo(true); setErro("");
     const { error } = await supaNavegador().auth.signInWithOtp({ email, options: { emailRedirectTo: volta(), data: nome ? { full_name: nome } : undefined } });
     setIndo(false);
-    if (error) setErro(error.message.includes("rate") ? "Muitos pedidos seguidos. Espera um minuto e tenta de novo." : "Não deu para mandar o link. Confere o e-mail.");
+    if (error) {
+      const c = (error as any).code || "";
+      const m = error.message || "";
+      setErro(
+        /rate|limit/i.test(c + m) ? "Muitos pedidos seguidos. Espera alguns minutos e tenta de novo." :
+        /invalid/i.test(c) ? "Esse e-mail não parece válido. Confere se digitou certo." :
+        /not_authorized|not authorized/i.test(c + m) ? "O envio de e-mail ainda está em modo teste. Só manda para e-mails da equipe." :
+        `Não deu para mandar o link (${c || m}).`
+      );
+    }
     else setEnviado(true);
   };
   const router = useRouter();
