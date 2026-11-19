@@ -2,14 +2,17 @@
 // Sem elas, o painel roda em modo exemplo.
 const ler = (n: string) => (typeof process !== "undefined" && process.env ? process.env[n] : undefined) || "";
 
+// Aceita a URL com ou sem "/rest/v1/" no final (fica só https://xxxx.supabase.co)
+const limpar = (u: string) => { try { return u ? new URL(u.trim()).origin : ""; } catch { return ""; } };
+
 export function supaEnv(): { url: string; anon: string } {
   if (typeof window !== "undefined") {
     const w = (window as unknown as { __KENV?: { url?: string; anon?: string } }).__KENV || {};
-    return { url: w.url || "", anon: w.anon || "" };
+    return { url: limpar(w.url || ""), anon: (w.anon || "").trim() };
   }
   return {
-    url: ler("NEXT_PUBLIC_SUPABASE_URL") || ler("SUPABASE_URL"),
-    anon: ler("NEXT_PUBLIC_SUPABASE_ANON_KEY") || ler("SUPABASE_ANON_KEY") || ler("SUPABASE_PUBLISHABLE_KEY"),
+    url: limpar(ler("NEXT_PUBLIC_SUPABASE_URL") || ler("SUPABASE_URL")),
+    anon: (ler("NEXT_PUBLIC_SUPABASE_ANON_KEY") || ler("SUPABASE_ANON_KEY") || ler("SUPABASE_PUBLISHABLE_KEY")).trim(),
   };
 }
 export const supaLigado = () => { const e = supaEnv(); return Boolean(e.url && e.anon); };
