@@ -9,5 +9,7 @@
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
   // mantém as variáveis criadas no painel da Cloudflare a cada deploy
   "keep_vars": true,
+  // publica no endereço grátis kortify.<conta>.workers.dev
+  "workers_dev": true,
   "observability": { "enabled": true }
 }
