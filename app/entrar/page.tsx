@@ -19,14 +19,14 @@ export default function Entrar() {
   const [indo, setIndo] = useState(false);
   const volta = () => `${location.origin}/auth/callback`;
   const google = async () => {
-    if (!supaLigado) return router.push("/painel");
+    if (!supaLigado()) return router.push("/painel");
     setErro("");
     const { error } = await supaNavegador().auth.signInWithOAuth({ provider: "google", options: { redirectTo: volta() } });
     if (error) setErro("Não deu para abrir o Google agora. Tenta pelo e-mail.");
   };
   const porEmail = async () => {
     if (!email.includes("@")) return;
-    if (!supaLigado) return setEnviado(true);
+    if (!supaLigado()) return setEnviado(true);
     setIndo(true); setErro("");
     const { error } = await supaNavegador().auth.signInWithOtp({ email, options: { emailRedirectTo: volta(), data: nome ? { full_name: nome } : undefined } });
     setIndo(false);
@@ -71,7 +71,7 @@ export default function Entrar() {
               <span className="k-ok big"><Check width={28} height={28} /></span>
               <h1 className="k-h1 md">Olha seu e-mail.</h1>
               <p className="k-muted">Mandamos um link para <b>{email}</b>. Ele vale por 15 minutos.</p>
-              {!supaLigado && <Botao href="/painel" v="ink">Abrir o painel (exemplo)</Botao>}
+              {!supaLigado() && <Botao href="/painel" v="ink">Abrir o painel (exemplo)</Botao>}
               <button type="button" className="k-link" onClick={() => setEnviado(false)}>Usar outro e-mail</button>
             </div>
           )}

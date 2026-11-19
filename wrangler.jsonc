@@ -2,8 +2,12 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "kortify",
   "main": ".open-next/worker.js",
+  // a Cloudflare roda só "npx wrangler deploy"; isto gera o site antes
+  "build": { "command": "npx opennextjs-cloudflare build" },
   "compatibility_date": "2025-05-05",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  // mantém as variáveis criadas no painel da Cloudflare a cada deploy
+  "keep_vars": true,
   "observability": { "enabled": true }
 }

@@ -56,7 +56,7 @@ const paraCorte = (r: any, i: number): Corte => ({
 });
 
 export function DadosProvider({ children }: { children: ReactNode }) {
-  const real = supaLigado;
+  const real = supaLigado();
   const [carregando, setCarregando] = useState(real);
   const [usuario, setUsuario] = useState<Usuario>(real ? { ...ex.usuario, nome: "", primeiroNome: "", email: "", minutosUsados: 0 } : ex.usuario);
   const [perfil, setPerfil] = useState<Perfil>({});

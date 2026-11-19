@@ -4,7 +4,7 @@ import { linkEnvio, r2Ligado } from "@/lib/r2";
 
 // 1º passo do envio: registra a live e devolve o link para mandar o arquivo.
 export async function POST(req: Request) {
-  if (!r2Ligado) return NextResponse.json({ erro: "Armazenamento ainda não configurado." }, { status: 503 });
+  if (!r2Ligado()) return NextResponse.json({ erro: "Armazenamento ainda não configurado." }, { status: 503 });
   const supa = await supaServidor();
   const { data: { user } } = await supa.auth.getUser();
   if (!user) return NextResponse.json({ erro: "Entre na sua conta." }, { status: 401 });
