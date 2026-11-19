@@ -17,3 +17,7 @@ Rode `supabase/schema.sql` no SQL Editor do Supabase. As variáveis ficam em `.e
 2. O arquivo vai direto para o R2 (não passa pelo servidor).
 3. `/api/envio/concluir` coloca a live na fila.
 4. O motor (clipador.py num servidor) chama `/api/worker/proximo`, corta, manda os MP4 para o R2 e avisa `/api/worker/resultado`.
+
+## E-mails de login
+
+Os modelos ficam em `supabase/emails/`. Rode `node supabase/emails/gerar.mjs` e cole o HTML em Supabase → Authentication → Emails → Templates.
