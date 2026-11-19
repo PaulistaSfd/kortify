@@ -1,5 +1,6 @@
 import { Sun, Moon, Captions, ScanFace, Volume2, ClockArrowDown, Scissors, Check, Download, Link, Upload } from "@/components/icons";
 import Interactions from "@/components/Interactions";
+import { Contador } from "@/components/Contador";
 
 type Cena = "voadora" | "assalto" | "fuga" | "mecanico";
 
@@ -101,6 +102,7 @@ export default function Home() {
   return (
     <>
       <Interactions />
+      <Contador />
       <div className="cursor" data-cursor aria-hidden="true"><span className="cursor-label" /></div>
 
       <header className="top">

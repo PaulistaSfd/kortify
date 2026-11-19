@@ -20,9 +20,9 @@ export async function middleware(req: NextRequest) {
   });
   const { data: { user } } = await supa.auth.getUser();
   const p = req.nextUrl.pathname;
-  if (!user && p.startsWith("/painel")) return NextResponse.redirect(new URL("/entrar", req.url));
+  if (!user && (p.startsWith("/painel") || p.startsWith("/admin"))) return NextResponse.redirect(new URL("/entrar", req.url));
   if (user && p === "/entrar") return NextResponse.redirect(new URL("/painel", req.url));
   return res;
 }
 
-export const config = { matcher: ["/painel/:path*", "/entrar"] };
+export const config = { matcher: ["/painel/:path*", "/admin/:path*", "/admin", "/entrar"] };
