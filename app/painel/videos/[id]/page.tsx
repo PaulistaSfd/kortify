@@ -7,12 +7,12 @@ import { useDados } from "@/components/app/Dados";
 import { Etapas } from "@/components/app/Etapas";
 import { Telefone } from "@/components/app/Telefone";
 import { Botao } from "@/components/app/Botao";
-import { ArrowLeft, Flame, Check, X, Undo, Alert, Wand } from "@/components/app/icones";
+import { ArrowLeft, Flame, Check, X, Undo, Alert, Wand, Zap } from "@/components/app/icones";
 import { Download } from "@/components/icons";
 
 export default function VideoPage() {
   const { id } = useParams<{ id: string }>();
-  const { videos, cortes, marcarCorte: marcar, carregando } = useDados();
+  const { videos, cortes, marcarCorte: marcar, carregando, modo, atualizar } = useDados();
   const v = videos.find((x) => x.id === id) || (carregando ? null : videos[0]);
   if (!v) return <div className="k-page"><p className="k-muted">{carregando ? "Carregando…" : "Live não encontrada."}</p></div>;
   const lista = cortes.filter((c) => c.videoId === v.id).sort((a, b) => b.nota - a.nota);
@@ -26,6 +26,26 @@ export default function VideoPage() {
         <p className="k-label"><span className="tc num">{v.duracao}</span> {v.canal}</p>
         <h1 className="k-h1 md">{v.titulo}</h1>
       </header>
+
+      {(v.status === "aguardando" || v.status === "ao_vivo") && (
+        <section className="k-card k-proc">
+          {v.status === "aguardando" ? (
+            <div className="k-wait">
+              <span className="k-wait-pulse"><Zap width={22} height={22} /></span>
+              <h2 className="k-h3">Esperando a live começar</h2>
+              <p className="k-muted">O Kortify confere o canal a cada minuto. Assim que você entrar ao vivo, ele começa a gravar e os cortes vão aparecendo aqui.</p>
+            </div>
+          ) : (
+            <div className="k-proc-head">
+              <span className="k-rec"><i /> Ao vivo · gravando</span>
+              <p className="k-muted">Ao vivo há <b className="num">{v.duracao}</b>. A cada 10 minutos o Kortify analisa o bloco e solta os melhores momentos aqui embaixo.</p>
+            </div>
+          )}
+          <div className="k-row">
+            <button type="button" className="k-link danger" onClick={async () => { if (modo === "real") { await fetch("/api/envio/parar", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: v.id }) }); atualizar(); } }}>Parar captura</button>
+          </div>
+        </section>
+      )}
 
       {v.status === "processando" && (
         <section className="k-card k-proc">
@@ -57,7 +77,7 @@ export default function VideoPage() {
         </section>
       )}
 
-      {v.status === "pronto" && (
+      {(v.status === "pronto" || (v.status === "ao_vivo" && lista.length > 0)) && (
         <>
           <div className="k-toolbar">
             <p><b className="num">{lista.length}</b> cortes sugeridos · <b className="num">{aprovados}</b> escolhidos</p>

@@ -4,7 +4,7 @@ import { useDados } from "@/components/app/Dados";
 import { Botao } from "@/components/app/Botao";
 import { ChevronRight, Alert, Loader } from "@/components/app/icones";
 
-const rotulo = { pronto: "Pronta", processando: "Cortando", erro: "Deu erro" };
+const rotulo = { pronto: "Pronta", processando: "Cortando", erro: "Deu erro", aguardando: "Esperando a live", ao_vivo: "Ao vivo" };
 
 export default function Lives() {
   const { videos, cortes } = useDados();
@@ -37,9 +37,10 @@ export default function Lives() {
                 <span className={`k-status s-${v.status}`}>
                   {v.status === "processando" && <Loader width={14} height={14} className="spin" />}
                   {v.status === "erro" && <Alert width={14} height={14} />}
+                  {v.status === "ao_vivo" && <i className="k-dot-rec" />}
                   {rotulo[v.status]}
                 </span>
-                <span className="k-index-count num">{v.status === "pronto" ? `${n} cortes` : "–"}</span>
+                <span className="k-index-count num">{v.status === "pronto" || v.status === "ao_vivo" ? `${n} cortes` : "–"}</span>
                 <ChevronRight width={18} height={18} className="k-index-go" />
               </Link>
             </li>

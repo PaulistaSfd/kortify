@@ -13,6 +13,7 @@ export default function Inicio() {
   const hora = new Date().getHours();
   const saudacao = hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite";
   const processando = videos.find((v) => v.status === "processando");
+  const aoVivo = videos.filter((v) => v.status === "ao_vivo" || v.status === "aguardando");
   const paraRevisar = cortes.filter((c) => c.status === "sugerido" || c.status === "aprovado").sort((a, b) => b.nota - a.nota);
   const pct = Math.min(100, Math.round((usuario.minutosUsados / Math.max(1, usuario.minutosPlano)) * 100));
 
@@ -20,7 +21,7 @@ export default function Inicio() {
     <div className="k-page">
       <header className="k-head">
         <p className="k-label"><span className="tc num">00:00:00</span> Painel</p>
-        <h1 className="k-h1">{saudacao},<br /><em>{usuario.primeiroNome || "criador"}.</em></h1>
+        <h1 className="k-h1" suppressHydrationWarning>{saudacao},<br /><em>{usuario.primeiroNome || "criador"}.</em></h1>
         <p className="k-lead">{videos.length === 0 ? <>Manda sua primeira live aqui embaixo. Em uns minutos os cortes aparecem nesta tela.</> : <>Você tem <b>{paraRevisar.length} {paraRevisar.length === 1 ? "corte" : "cortes"}</b> esperando sua escolha{processando ? " e uma live sendo cortada agora" : ""}.</>}</p>
       </header>
 
@@ -45,6 +46,17 @@ export default function Inicio() {
           <Botao href="/painel/plano" v="line">Ver plano</Botao>
         </section>
       </div>
+
+      {aoVivo.map((v) => (
+        <Link key={v.id} href={`/painel/videos/${v.id}`} className="k-live-now">
+          <span className="k-live-big">{v.status === "ao_vivo" ? "REC" : "…"}</span>
+          <span>
+            <b>{v.titulo}</b><br />
+            <span className="k-muted">{v.status === "ao_vivo" ? `Ao vivo há ${v.duracao} · ${cortes.filter((c) => c.videoId === v.id).length} cortes até agora` : "Esperando a live começar"}</span>
+          </span>
+          <span className="k-more">Ver <ChevronRight width={16} height={16} /></span>
+        </Link>
+      ))}
 
       {processando && (
         <section className="k-card k-live" aria-labelledby="live-t">

@@ -2,7 +2,7 @@
 // estas funções passam a buscar do banco e as telas continuam iguais.
 
 export type Plataforma = "shorts" | "tiktok";
-export type StatusVideo = "pronto" | "processando" | "erro";
+export type StatusVideo = "pronto" | "processando" | "erro" | "aguardando" | "ao_vivo";
 export type StatusCorte = "sugerido" | "aprovado" | "baixado" | "descartado";
 
 export type Corte = {
@@ -29,6 +29,8 @@ export type Video = {
   status: StatusVideo;
   etapa?: number; // 0 a 4, só quando processando
   plataformas: Plataforma[];
+  origem?: "arquivo" | "link" | "live";
+  fonte?: string;
 };
 
 export const usuario = {
@@ -46,6 +48,7 @@ export const videos: Video[] = [
   { id: "v-rp-cidade", titulo: "RP na cidade: assalto ao banco central", canal: "Live da terça", duracao: "04:12:08", minutos: 252, enviadoEm: "Hoje, 14:02", status: "processando", etapa: 2, plataformas: ["shorts", "tiktok"] },
   { id: "v-fuga", titulo: "Fuga da polícia com o mecânico novo", canal: "Live de domingo", duracao: "03:01:44", minutos: 182, enviadoEm: "Ontem, 22:40", status: "pronto", plataformas: ["shorts", "tiktok"] },
   { id: "v-podcast", titulo: "Podcast #12: como comecei a fazer live", canal: "Podcast", duracao: "01:38:20", minutos: 98, enviadoEm: "15 nov", status: "pronto", plataformas: ["shorts"] },
+  { id: "v-ao-vivo", titulo: "Live da Twitch · seucanal", canal: "Ao vivo agora", duracao: "01:12:40", minutos: 73, enviadoEm: "Hoje, 19:30", status: "ao_vivo", plataformas: ["shorts", "tiktok"], origem: "live", fonte: "twitch" },
   { id: "v-teste", titulo: "Teste de áudio (arquivo corrompido)", canal: "Rascunho", duracao: "00:00:00", minutos: 0, enviadoEm: "12 nov", status: "erro", plataformas: ["tiktok"] },
 ];
 

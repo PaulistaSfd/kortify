@@ -10,5 +10,7 @@ export async function POST(req: Request) {
   if (error) return NextResponse.json({ erro: error.message }, { status: 500 });
   const v = Array.isArray(data) ? data[0] : data;
   if (!v) return NextResponse.json({ live: null });
-  return NextResponse.json({ live: { ...v, download: await linkDownload(v.arquivo_key) } });
+  // arquivo enviado: link do R2; link de VOD: o motor baixa direto de url_origem
+  const download = v.origem === "arquivo" && v.arquivo_key ? await linkDownload(v.arquivo_key) : null;
+  return NextResponse.json({ live: { ...v, download } });
 }

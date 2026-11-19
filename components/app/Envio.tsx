@@ -2,11 +2,13 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { Upload } from "../icons";
-import { FileVideo, X, Check } from "./icones";
+import { FileVideo, X, Check, Zap } from "./icones";
+import { Link as LinkIcon } from "../icons";
+import { lerLink, nomeFonte } from "@/lib/fontes";
 import { Botao } from "./Botao";
 import { useDados } from "./Dados";
 
-// Caixa de envio da live. Hoje simula o upload; depois manda direto para o R2.
+// Caixa de envio: arquivo (vai direto para o R2), link de VOD ou captura de live ao vivo.
 type Fase = "vazio" | "enviando" | "pronto";
 
 export function Envio() {
@@ -21,6 +23,26 @@ export function Envio() {
   const [arrastando, setArrastando] = useState(false);
   const [destino, setDestino] = useState<"os dois" | "shorts" | "tiktok">("os dois");
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [aba, setAba] = useState<"arquivo" | "link" | "live">("arquivo");
+  const [url, setUrl] = useState("");
+  const [autorizado, setAutorizado] = useState(false);
+  const [enviandoLink, setEnviandoLink] = useState(false);
+  const [msgLink, setMsgLink] = useState("");
+  const fonte = url ? lerLink(url) : null;
+  const linkOk = !!fonte && (aba === "live" ? fonte.tipo === "canal" : fonte.tipo === "vod");
+
+  const mandarLink = async () => {
+    setErro("");
+    if (!linkOk) { setErro(aba === "live" ? "Cole o link do canal, tipo twitch.tv/seucanal ou kick.com/seucanal." : "Cole o link do vídeo (VOD) da Twitch, da Kick ou do YouTube."); return; }
+    if (!autorizado) { setErro("Marque a confirmação de que o vídeo é seu ou que você tem autorização."); return; }
+    if (modo === "exemplo") { setNovoId(aba === "live" ? "v-ao-vivo" : "v-rp-cidade"); setMsgLink(fonte!.nome); setFase("pronto"); return; }
+    setEnviandoLink(true);
+    const r = await fetch("/api/envio/link", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url, destino, aoVivo: aba === "live", autorizado }) })
+      .then((x) => x.json()).catch(() => ({ erro: "Sem conexão." }));
+    setEnviandoLink(false);
+    if (!r.id) { setErro(r.erro || "Não deu para registrar."); return; }
+    setNovoId(r.id); setMsgLink(r.nome); setFase("pronto"); atualizar();
+  };
 
   const enviarDeVerdade = async (f: File) => {
     setArquivo({ nome: f.name, mb: Math.max(1, Math.round(f.size / 1048576)) });
@@ -67,9 +89,39 @@ export function Envio() {
 
       {fase === "vazio" && (
         <div className="k-drop-in">
-          <span className="k-drop-icon"><Upload width={26} height={26} /></span>
-          <h2 className="k-h2">Solta a live aqui</h2>
-          <p className="k-muted">MP4, MOV ou MKV, até 6 horas. Baixe o VOD no painel da Twitch ou do YouTube e arraste para cá.</p>
+          <div className="k-seg k-src" role="tablist" aria-label="Como mandar a live">
+            <button type="button" role="tab" aria-selected={aba === "arquivo"} className={aba === "arquivo" ? "on" : ""} onClick={() => { setAba("arquivo"); setErro(""); }}><Upload width={16} height={16} /> Arquivo</button>
+            <button type="button" role="tab" aria-selected={aba === "link"} className={aba === "link" ? "on" : ""} onClick={() => { setAba("link"); setErro(""); }}><LinkIcon width={16} height={16} /> Link do VOD</button>
+            <button type="button" role="tab" aria-selected={aba === "live"} className={aba === "live" ? "on" : ""} onClick={() => { setAba("live"); setErro(""); }}><i className="k-dot-rec" /> Ao vivo</button>
+          </div>
+
+          {aba === "arquivo" && (<>
+            <h2 className="k-h2">Solta a live aqui</h2>
+            <p className="k-muted">MP4, MOV ou MKV, até 6 horas. Arrasta o arquivo para cá ou escolhe no computador.</p>
+          </>)}
+          {aba === "link" && (<>
+            <h2 className="k-h2">Cola o link do VOD</h2>
+            <p className="k-muted">Twitch, Kick ou YouTube. O Kortify baixa a live sozinho, você não precisa baixar nada.</p>
+          </>)}
+          {aba === "live" && (<>
+            <h2 className="k-h2">Corta enquanto você joga</h2>
+            <p className="k-muted">Cola o link do seu canal. Quando a live começar, o Kortify grava em blocos de 10 minutos e vai soltando os cortes durante a live. Para sozinho quando ela acaba.</p>
+          </>)}
+
+          {aba !== "arquivo" && (
+            <div className="k-url">
+              <label className={`k-url-in${url && !linkOk ? " bad" : ""}`}>
+                <LinkIcon width={18} height={18} />
+                <input type="url" inputMode="url" placeholder={aba === "live" ? "twitch.tv/seucanal ou kick.com/seucanal" : "twitch.tv/videos/123… ou kick.com/…/videos/…"} value={url} onChange={(e) => { setUrl(e.target.value); setErro(""); }} />
+                {fonte && <span className={`k-src-tag s-${fonte.fonte}`}>{nomeFonte[fonte.fonte]} · {fonte.tipo === "canal" ? "canal" : "VOD"}</span>}
+              </label>
+              <label className="k-check">
+                <input type="checkbox" checked={autorizado} onChange={(e) => setAutorizado(e.target.checked)} />
+                <span>O canal é meu, ou tenho autorização do dono para cortar esse conteúdo.</span>
+              </label>
+            </div>
+          )}
+
           <div className="k-seg" role="radiogroup" aria-label="Para onde vão os cortes">
             {(["os dois", "shorts", "tiktok"] as const).map((d) => (
               <button key={d} type="button" role="radio" aria-checked={destino === d} className={destino === d ? "on" : ""} onClick={() => setDestino(d)}>
@@ -77,13 +129,28 @@ export function Envio() {
               </button>
             ))}
           </div>
-          <Botao v="yellow" size="" onClick={() => input.current?.click()}>Escolher arquivo</Botao>
-          {modo === "exemplo" && <button type="button" className="k-link" onClick={() => comecar("live-de-teste.mp4", 2.4e9)}>Testar com uma live de exemplo</button>}
+
+          {aba === "arquivo" ? (
+            <Botao v="yellow" size="" onClick={() => input.current?.click()}>Escolher arquivo</Botao>
+          ) : (
+            <Botao v="yellow" size="" icon={aba === "live" ? <Zap width={16} height={16} /> : undefined} onClick={mandarLink} disabled={enviandoLink}>{enviandoLink ? "Mandando…" : aba === "live" ? "Ativar captura ao vivo" : "Cortar esse VOD"}</Botao>
+          )}
+          {aba === "arquivo" && modo === "exemplo" && <button type="button" className="k-link" onClick={() => comecar("live-de-teste.mp4", 2.4e9)}>Testar com uma live de exemplo</button>}
           {erro && <p className="k-saved bad" role="alert">{erro}</p>}
         </div>
       )}
 
-      {fase !== "vazio" && (
+      {fase === "pronto" && msgLink && (
+        <div className="k-drop-done">
+          <p>{aba === "live" ? <>Captura ativada para <b>{msgLink}</b>. Quando a live começar, os cortes vão aparecendo no painel, e a gente te avisa por e-mail.</> : <>Recebido: <b>{msgLink}</b>. O Kortify baixa a live, ouve tudo e separa os melhores momentos. A gente te avisa por e-mail quando terminar.</>}</p>
+          <div className="k-row">
+            <Botao href={`/painel/videos/${novoId}`} v="ink">Acompanhar</Botao>
+            <button type="button" className="k-link" onClick={() => { setFase("vazio"); setMsgLink(""); setUrl(""); }}>Mandar outra</button>
+          </div>
+        </div>
+      )}
+
+      {fase !== "vazio" && !msgLink && (
         <div className="k-drop-file">
           <span className="k-file-icon"><FileVideo width={22} height={22} /></span>
           <div className="k-file-t">
@@ -98,7 +165,7 @@ export function Envio() {
           )}
         </div>
       )}
-      {fase === "pronto" && (
+      {fase === "pronto" && !msgLink && (
         <div className="k-drop-done">
           <p>Recebido. Agora o Kortify ouve a live inteira e separa os melhores momentos para {destino === "os dois" ? "Shorts e TikTok" : destino === "shorts" ? "Shorts" : "TikTok"}. A gente te avisa por e-mail quando terminar.</p>
           <div className="k-row">

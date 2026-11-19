@@ -46,7 +46,8 @@ const quando = (iso: string) => {
 const paraVideo = (r: any): Video => ({
   id: r.id, titulo: r.titulo, canal: quando(r.criado_em), duracao: r.duracao_seg ? tc(r.duracao_seg) : "--:--:--",
   minutos: r.minutos || 0, enviadoEm: quando(r.criado_em),
-  status: r.status === "pronto" ? "pronto" : r.status === "erro" ? "erro" : "processando",
+  status: r.status === "pronto" ? "pronto" : r.status === "erro" ? "erro" : r.status === "aguardando" ? "aguardando" : r.status === "ao_vivo" ? "ao_vivo" : "processando",
+  origem: r.origem, fonte: r.fonte,
   etapa: r.status === "enviando" ? 0 : r.status === "na_fila" ? 0 : r.etapa, plataformas: r.plataformas,
 });
 const paraCorte = (r: any, i: number): Corte => ({
@@ -93,7 +94,7 @@ export function DadosProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { atualizar(); }, [atualizar]);
   // enquanto alguma live estiver sendo cortada, confere de 8 em 8 segundos
-  const temFila = videos.some((v) => v.status === "processando");
+  const temFila = videos.some((v) => v.status === "processando" || v.status === "ao_vivo" || v.status === "aguardando");
   useEffect(() => {
     if (!real || !temFila) return;
     const t = setInterval(atualizar, 8000);

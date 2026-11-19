@@ -524,3 +524,28 @@
 }
 .k-saved.bad { color: var(--k-bad); }
 .k-demo { max-width: 1180px; margin: -16px auto 24px; padding: 10px 14px; border-radius: 10px; background: var(--k-pri-soft); color: var(--ink-2); font-size: 13px; }
+
+/* ---------- link de VOD e live ao vivo ---------- */
+.k-src { margin-bottom: 6px; }
+.k-dot-rec { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--k-bad); box-shadow: 0 0 0 3px color-mix(in oklch, var(--k-bad) 22%, transparent); animation: k-blink 1.2s steps(2, jump-none) infinite; }
+.k-url { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 560px; }
+.k-url-in { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 8px 0 14px; border-radius: 12px; background: var(--k-card); box-shadow: inset 0 0 0 1px var(--k-line), var(--k-shadow); color: var(--ink-3); transition: box-shadow 150ms var(--ease); }
+.k-url-in:focus-within { box-shadow: inset 0 0 0 1.5px var(--k-pri), 0 0 0 4px var(--k-pri-soft); }
+.k-url-in.bad { box-shadow: inset 0 0 0 1.5px var(--k-warn); }
+.k-url-in input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: inherit; font-size: 15px; color: var(--ink); }
+.k-src-tag { flex: none; padding: 4px 9px; border-radius: 7px; font-family: var(--mono); font-size: 11.5px; color: #fff; background: var(--ink-3); animation: k-pop 250ms var(--ease) both; }
+.k-src-tag.s-twitch { background: #9146ff; }
+.k-src-tag.s-kick { background: #1db954; color: #04120a; }
+.k-src-tag.s-youtube { background: #ff0033; }
+.k-check { display: flex; align-items: flex-start; gap: 10px; font-size: 13.5px; color: var(--ink-2); cursor: pointer; line-height: 1.4; }
+.k-check input { flex: none; width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--k-pri); cursor: pointer; }
+.k-live-now { display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center; padding: 20px 24px; border-radius: 16px; background: linear-gradient(90deg, color-mix(in oklch, var(--k-bad) 10%, var(--k-card)), var(--k-card) 60%); box-shadow: 0 0 0 1px var(--k-line-2), var(--k-shadow); }
+.k-live-now .k-live-big { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--k-bad); color: #fff; font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; }
+.k-live-now b { font-family: var(--display); font-stretch: 110%; font-size: 1.15rem; letter-spacing: -0.02em; }
+.k-live-now .k-muted { font-family: var(--mono); font-size: 12px; }
+.k-wait { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.k-wait-pulse { position: relative; width: 56px; height: 56px; border-radius: 50%; background: var(--k-pri-soft); display: grid; place-items: center; color: var(--k-pri); }
+.k-wait-pulse::after { content: ""; position: absolute; inset: 0; border-radius: 50%; box-shadow: 0 0 0 0 var(--k-pri); animation: k-ring 1.8s var(--ease) infinite; }
+@keyframes k-ring { to { box-shadow: 0 0 0 16px transparent; } }
+@media (max-width: 640px) { .k-live-now { grid-template-columns: auto 1fr; } .k-live-now .k-more { grid-column: 1 / -1; } .k-src button { padding: 0 10px; } }
+.k-url-in input:focus-visible, .k-search input:focus-visible { outline: none; }

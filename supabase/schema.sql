@@ -114,3 +114,5 @@ language sql security definer set search_path = public as $$
   returning *;
 $$;
 revoke execute on function public.pegar_proxima_live() from anon, authenticated;
+
+-- Links e live ao vivo: rode também o arquivo 002_links_e_live.sql
